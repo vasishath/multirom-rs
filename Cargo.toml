@@ -1,0 +1,9 @@
+[package]
+name = "multirom-rs"
+version = "0.1.0"
+authors = ["vasishath <vasishath@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+nix = "0.14.1"
+unwrap = "1.2.1"
