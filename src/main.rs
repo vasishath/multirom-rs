@@ -6,6 +6,15 @@ use std::env;
 use nix::unistd::mkdir;
 use nix::mount::mount;
 use nix::mount::MsFlags;
+use std::fmt::Write;
+#[macro_use]
+mod klog;
+
+const VERSION_TRAMPOLINE:u8 = 28;
+
+struct main_struct {
+    Logger: klog::Kernellogger,
+}
 
 fn MOUNT_OR_PANIC(source:&str, target:&str, fstype:&str, flags:MsFlags, data:&str) {
     if data.is_empty() {
@@ -20,6 +29,12 @@ fn main() {
     if args.len() > 0 {
         //process commandline here
     }
+
+    let logger =  klog::mrom_klog_init(6, "Trampoline-rs");
+    let mut mainCtx = main_struct {Logger: logger};
+    
+
+    info!(mainCtx, "Trampoline-rs version {} initialising", VERSION_TRAMPOLINE);
 
     umask(Mode::empty());
     let mode = Mode::from_bits(0755).expect("Failed to generate mode. Invalid mask ?");
@@ -36,4 +51,9 @@ fn main() {
     MOUNT_OR_PANIC("pstore", "/sys/fs/pstore", "pstore", MsFlags::empty(), "");
     MOUNT_OR_PANIC("selinuxfs", "/sys/fs/selinux", "selinuxfs", MsFlags::empty(), "");
 
+    //hook before_device_init
+
+    info!(mainCtx, "Initialising devices...");
+
+    
 }
